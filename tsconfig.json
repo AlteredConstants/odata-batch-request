@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "outDir": "lib",
+    "declaration": true,
+    "target": "es5",
+    "lib": ["esnext"],
+    "sourceMap": true,
+    "importHelpers": true,
+    "downlevelIteration": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "moduleResolution": "node"
+  },
+  "exclude": ["__mocks__", "__snapshots__", "*.test.ts"]
+}
