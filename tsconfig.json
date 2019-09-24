@@ -16,5 +16,5 @@
     "module": "commonjs",
     "moduleResolution": "node"
   },
-  "exclude": ["__mocks__", "__snapshots__", "*.test.ts"]
+  "include": ["src/*"]
 }

@@ -4,7 +4,7 @@ import {
   ODataBatchChangeset,
   ODataBatchOperation,
   ODataBatchRequest,
-} from "./index"
+} from "../src/index"
 
 jest.mock("uuid/v4")
 
@@ -18,7 +18,7 @@ test("GET only", () => {
     new ODataBatchOperation(Method.Get, "Products"),
   ])
 
-  expect(batch.value).toMatchSnapshot()
+  expect(batch.toString()).toMatchSnapshot()
 })
 
 test("GET and POST", () => {
@@ -32,10 +32,10 @@ test("GET and POST", () => {
     }),
   ])
 
-  expect(batch.value).toMatchSnapshot()
+  expect(batch.toString()).toMatchSnapshot()
 })
 
-test("Changset", () => {
+test("Changeset", () => {
   uuid
     // Changeset boundary.
     .mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
@@ -59,5 +59,5 @@ test("Changset", () => {
     new ODataBatchOperation(Method.Get, "Products"),
   ])
 
-  expect(batch.value).toMatchSnapshot()
+  expect(batch.toString()).toMatchSnapshot()
 })

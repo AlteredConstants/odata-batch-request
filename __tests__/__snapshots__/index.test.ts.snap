@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Changset 1`] = `
+exports[`Changeset 1`] = `
 "POST host/service/$batch HTTP/1.1
 Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
 
