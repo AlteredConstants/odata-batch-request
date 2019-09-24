@@ -1,10 +1,10 @@
-import * as uuid from "uuid/v4"
 import { outdent } from "outdent"
+import * as uuid from "uuid/v4"
 
 const newline = "\r\n"
 const format = outdent({ newline })
 
-export class ODataBatch {
+export class ODataBatchRequest {
   public constructor(
     private readonly serviceRoot: string,
     private readonly operations: readonly Operation[],

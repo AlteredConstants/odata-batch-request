@@ -1,9 +1,9 @@
 import * as _uuid from "uuid/v4"
 import {
   Method,
-  ODataBatch,
   ODataBatchChangeset,
   ODataBatchOperation,
+  ODataBatchRequest,
 } from "./index"
 
 jest.mock("uuid/v4")
@@ -13,7 +13,7 @@ const uuid: jest.Mock<string, []> = _uuid as any
 test("GET only", () => {
   uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
 
-  const batch = new ODataBatch("host/service", [
+  const batch = new ODataBatchRequest("host/service", [
     new ODataBatchOperation(Method.Get, "Customers('ALFKI')"),
     new ODataBatchOperation(Method.Get, "Products"),
   ])
@@ -24,7 +24,7 @@ test("GET only", () => {
 test("GET and POST", () => {
   uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
 
-  const batch = new ODataBatch("host/service", [
+  const batch = new ODataBatchRequest("host/service", [
     new ODataBatchOperation(Method.Get, "Customers('ALFKI')"),
     new ODataBatchOperation(Method.Post, "Customers", {
       headers: { "Content-Type": "application/atom+xml;type=entry" },
@@ -53,7 +53,7 @@ test("Changset", () => {
     }),
   ])
 
-  const batch = new ODataBatch("host/service", [
+  const batch = new ODataBatchRequest("host/service", [
     new ODataBatchOperation(Method.Get, "Customers('ALFKI')"),
     changeset,
     new ODataBatchOperation(Method.Get, "Products"),
