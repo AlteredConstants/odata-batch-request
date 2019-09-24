@@ -7,15 +7,14 @@ const format = outdent({ newline })
 export class ODataBatch {
   public constructor(
     private readonly serviceRoot: string,
-    private readonly operations: readonly ODataBatchOperation[],
+    private readonly operations: readonly Operation[],
   ) {}
 
   private readonly boundary = `batch_${uuid()}`
-  private formattedOperations = this.operations.map(
+
+  private readonly formattedOperations = this.operations.map(
     operation => format`
       --${this.boundary}
-      ${defaultOperationHeaders}
-
       ${operation.value}
     `,
   )
@@ -30,6 +29,33 @@ export class ODataBatch {
     Content-Type: multipart/mixed; boundary=${this.boundary}
 
     ${this.body}
+  `
+
+  public toString(): string {
+    return this.value
+  }
+}
+
+export class ODataBatchChangeset {
+  public constructor(
+    private readonly operations: readonly ODataBatchOperation[],
+  ) {}
+
+  private readonly boundary = `changeset_${uuid()}`
+
+  private readonly formattedOperations = this.operations.map(
+    (operation, index) => format`
+      --${this.boundary}
+      Content-ID: ${index + 1}
+      ${operation.value}
+    `,
+  )
+
+  public readonly value = format`
+    Content-Type: multipart/mixed; boundary=${this.boundary}
+
+    ${this.formattedOperations.join(newline)}
+    --${this.boundary}--
   `
 
   public toString(): string {
@@ -61,10 +87,7 @@ export class ODataBatchOperation {
       body?: string
     } = {},
   ) {
-    if (
-      (method === Method.Get || method === Method.Delete) &&
-      this.options.body
-    ) {
+    if ((method === Method.Get || method === Method.Delete) && options.body) {
       throw new Error("Methods GET and DELETE cannot include a body.")
     }
   }
@@ -76,6 +99,9 @@ export class ODataBatchOperation {
     .join("")
 
   public readonly value = format`
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
     ${this.method} ${this.path} HTTP/1.1
     ${this.formattedHeaders}
     ${this.body}
@@ -94,9 +120,5 @@ export enum Method {
   Delete = "DELETE",
 }
 
+type Operation = ODataBatchOperation | ODataBatchChangeset
 type Headers = { readonly [header: string]: string }
-
-const defaultOperationHeaders = format`
-  Content-Type: application/http
-  Content-Transfer-Encoding: binary
-`
