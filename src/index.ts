@@ -65,14 +65,14 @@ export class ODataBatchChangeset {
 
 export class ODataBatchOperation {
   public constructor(
-    method: Method.Get | Method.Delete,
+    method: "get" | "delete",
     path: string,
     options?: {
       headers?: Headers
     },
   )
   public constructor(
-    method: Exclude<Method, Method.Get | Method.Delete>,
+    method: "post" | "put" | "patch",
     path: string,
     options: {
       headers?: Headers
@@ -87,8 +87,13 @@ export class ODataBatchOperation {
       body?: string
     } = {},
   ) {
-    if ((method === Method.Get || method === Method.Delete) && options.body) {
-      throw new Error("Methods GET and DELETE cannot include a body.")
+    if (!methods.includes(method)) {
+      throw new Error(
+        `Method argument "${method}" is not one of ${JSON.stringify(methods)}.`,
+      )
+    }
+    if ((method === "get" || method === "delete") && options.body) {
+      throw new Error('Methods "get" and "delete" cannot include a body.')
     }
   }
 
@@ -102,7 +107,7 @@ export class ODataBatchOperation {
     Content-Type: application/http
     Content-Transfer-Encoding: binary
 
-    ${this.method} ${this.path} HTTP/1.1
+    ${this.method.toUpperCase()} ${this.path} HTTP/1.1
     ${this.formattedHeaders}
     ${this.body}
   `
@@ -112,13 +117,8 @@ export class ODataBatchOperation {
   }
 }
 
-export enum Method {
-  Get = "GET",
-  Put = "PUT",
-  Post = "POST",
-  Patch = "PATCH",
-  Delete = "DELETE",
-}
+const methods = ["get", "post", "put", "patch", "delete"] as const
+type Method = typeof methods[number]
 
 type Operation = ODataBatchOperation | ODataBatchChangeset
 type Headers = { readonly [header: string]: string }

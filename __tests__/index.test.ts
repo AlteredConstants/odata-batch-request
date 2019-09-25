@@ -1,6 +1,5 @@
 import * as _uuid from "uuid/v4"
 import {
-  Method,
   ODataBatchChangeset,
   ODataBatchOperation,
   ODataBatchRequest,
@@ -14,8 +13,8 @@ test("GET only", () => {
   uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
 
   const batch = new ODataBatchRequest("host/service", [
-    new ODataBatchOperation(Method.Get, "Customers('ALFKI')"),
-    new ODataBatchOperation(Method.Get, "Products"),
+    new ODataBatchOperation("get", "Customers('ALFKI')"),
+    new ODataBatchOperation("get", "Products"),
   ])
 
   expect(batch.toString()).toMatchSnapshot()
@@ -25,8 +24,8 @@ test("GET and POST", () => {
   uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
 
   const batch = new ODataBatchRequest("host/service", [
-    new ODataBatchOperation(Method.Get, "Customers('ALFKI')"),
-    new ODataBatchOperation(Method.Post, "Customers", {
+    new ODataBatchOperation("get", "Customers('ALFKI')"),
+    new ODataBatchOperation("post", "Customers", {
       headers: { "Content-Type": "application/atom+xml;type=entry" },
       body: "<AtomPub representation of a new Customer>",
     }),
@@ -43,20 +42,20 @@ test("Changeset", () => {
     .mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b")
 
   const changeset = new ODataBatchChangeset([
-    new ODataBatchOperation(Method.Post, "Customers", {
+    new ODataBatchOperation("post", "Customers", {
       headers: { "Content-Type": "application/atom+xml;type=entry" },
       body: "<AtomPub representation of a new Customer>",
     }),
-    new ODataBatchOperation(Method.Patch, "Customers('ALFKI')", {
+    new ODataBatchOperation("patch", "Customers('ALFKI')", {
       headers: { "Content-Type": "application/json" },
       body: "<JSON representation of Customer ALFKI>",
     }),
   ])
 
   const batch = new ODataBatchRequest("host/service", [
-    new ODataBatchOperation(Method.Get, "Customers('ALFKI')"),
+    new ODataBatchOperation("get", "Customers('ALFKI')"),
     changeset,
-    new ODataBatchOperation(Method.Get, "Products"),
+    new ODataBatchOperation("get", "Products"),
   ])
 
   expect(batch.toString()).toMatchSnapshot()
