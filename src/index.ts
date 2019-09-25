@@ -19,14 +19,17 @@ export class ODataBatchRequest {
     `,
   )
 
+  public readonly url = `${this.serviceRoot}/$batch`
+  public readonly contentType = `Content-Type: multipart/mixed; boundary=${this.boundary}`
+
   public readonly body = format`
     ${this.formattedOperations.join(newline)}
     --${this.boundary}--
   `
 
   public readonly value = format`
-    POST ${this.serviceRoot}/$batch HTTP/1.1
-    Content-Type: multipart/mixed; boundary=${this.boundary}
+    POST ${this.url} HTTP/1.1
+    ${this.contentType}
 
     ${this.body}
   `
