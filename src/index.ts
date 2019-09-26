@@ -5,42 +5,44 @@ const newline = "\r\n"
 const format = outdent({ newline })
 
 export class ODataBatchRequest {
+  public readonly url: string
+  public readonly headers: { readonly [header: string]: string }
+  public readonly body: string
+  public readonly value: string
+
   public constructor(
-    private readonly serviceRoot: string,
-    private readonly operations: readonly [Operation, ...Operation[]],
-  ) {}
+    serviceRoot: string,
+    operations: readonly [Operation, ...Operation[]],
+  ) {
+    const boundary = `batch_${uuid()}`
+    const formattedOperations = operations.map(
+      operation => format`
+        --${boundary}
+        ${operation.value}
+      `,
+    )
 
-  private readonly boundary = `batch_${uuid()}`
+    this.url = `${serviceRoot.replace(/\/+$/, "")}/$batch`
+    this.headers = {
+      "OData-Version": "4.0",
+      "Content-Type": `multipart/mixed; boundary=${boundary}`,
+      Accept: "multipart/mixed",
+    }
 
-  private readonly formattedOperations = this.operations.map(
-    operation => format`
-      --${this.boundary}
-      ${operation.value}
-    `,
-  )
+    this.body = format`
+      ${formattedOperations.join(newline)}
+      --${boundary}--
+    `
 
-  public readonly url = `${this.serviceRoot.replace(/\/+$/, "")}/$batch`
-  public readonly headers: { readonly [header: string]: string } = {
-    "OData-Version": "4.0",
-    "Content-Type": `multipart/mixed; boundary=${this.boundary}`,
-    Accept: "multipart/mixed",
+    this.value = format`
+      POST ${this.url} HTTP/1.1
+      ${Object.entries(this.headers)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(newline)}
+
+      ${this.body}
+    `
   }
-
-  public readonly contentType = `Content-Type: multipart/mixed; boundary=${this.boundary}`
-
-  public readonly body = format`
-    ${this.formattedOperations.join(newline)}
-    --${this.boundary}--
-  `
-
-  public readonly value = format`
-    POST ${this.url} HTTP/1.1
-    ${Object.entries(this.headers)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(newline)}
-
-    ${this.body}
-  `
 
   public toString(): string {
     return this.value
@@ -48,29 +50,28 @@ export class ODataBatchRequest {
 }
 
 export class ODataBatchChangeset {
+  public readonly value: string
+
   public constructor(
-    private readonly operations: readonly [
-      ODataBatchOperation,
-      ...ODataBatchOperation[],
-    ],
-  ) {}
+    operations: readonly [ODataBatchOperation, ...ODataBatchOperation[]],
+  ) {
+    const boundary = `changeset_${uuid()}`
 
-  private readonly boundary = `changeset_${uuid()}`
+    const formattedOperations = operations.map(
+      (operation, index) => format`
+        --${boundary}
+        Content-ID: ${index + 1}
+        ${operation.value}
+      `,
+    )
 
-  private readonly formattedOperations = this.operations.map(
-    (operation, index) => format`
-      --${this.boundary}
-      Content-ID: ${index + 1}
-      ${operation.value}
-    `,
-  )
+    this.value = format`
+      Content-Type: multipart/mixed; boundary=${boundary}
 
-  public readonly value = format`
-    Content-Type: multipart/mixed; boundary=${this.boundary}
-
-    ${this.formattedOperations.join(newline)}
-    --${this.boundary}--
-  `
+      ${formattedOperations.join(newline)}
+      --${boundary}--
+    `
+  }
 
   public toString(): string {
     return this.value
@@ -78,6 +79,8 @@ export class ODataBatchChangeset {
 }
 
 export class ODataBatchOperation {
+  public readonly value: string
+
   public constructor(
     method: "get" | "delete",
     path: string,
@@ -94,37 +97,32 @@ export class ODataBatchOperation {
     },
   )
   public constructor(
-    private readonly method: Method,
-    private readonly path: string,
-    private readonly options: {
-      headers?: Headers
-      body?: string
-    } = {},
+    method: Method,
+    path: string,
+    { headers = {} as Headers, body = "" } = {},
   ) {
     if (!methods.includes(method)) {
       throw new Error(
         `Method argument "${method}" is not one of ${JSON.stringify(methods)}.`,
       )
     }
-    if ((method === "get" || method === "delete") && options.body) {
+    if ((method === "get" || method === "delete") && body) {
       throw new Error('Methods "get" and "delete" cannot include a body.')
     }
-  }
 
-  private readonly headers = this.options.headers || {}
-  private readonly body = this.options.body || ""
-  private readonly formattedHeaders = Object.entries(this.headers)
-    .map(([key, value]) => `${key}: ${value}${newline}`)
-    .join("")
+    const formattedHeaders = Object.entries(headers)
+      .map(([key, value]) => `${key}: ${value}${newline}`)
+      .join("")
 
-  public readonly value = format`
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+    this.value = format`
+      Content-Type: application/http
+      Content-Transfer-Encoding: binary
 
-    ${this.method.toUpperCase()} ${this.path} HTTP/1.1
-    ${this.formattedHeaders}
-    ${this.body}
+      ${method.toUpperCase()} ${path} HTTP/1.1
+      ${formattedHeaders}
+      ${body}
   `
+  }
 
   public toString(): string {
     return this.value
