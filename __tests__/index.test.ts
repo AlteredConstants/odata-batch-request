@@ -60,3 +60,13 @@ test("Changeset", () => {
 
   expect(batch.toString()).toMatchSnapshot()
 })
+
+test("Construct correct batch URL", () => {
+  uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
+
+  const batch = new ODataBatchRequest("host/service/", [
+    new ODataBatchOperation("get", "Customers"),
+  ])
+
+  expect(batch.toString()).toMatchSnapshot()
+})

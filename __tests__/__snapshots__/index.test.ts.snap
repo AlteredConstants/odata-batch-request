@@ -2,7 +2,9 @@
 
 exports[`Changeset 1`] = `
 "POST host/service/$batch HTTP/1.1
+OData-Version: 4.0
 Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Accept: multipart/mixed
 
 --batch_36522ad7-fc75-4b56-8c71-56071383e77b
 Content-Type: application/http
@@ -43,9 +45,27 @@ GET Products HTTP/1.1
 --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
 `;
 
+exports[`Construct correct batch URL 1`] = `
+"POST host/service/$batch HTTP/1.1
+OData-Version: 4.0
+Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Accept: multipart/mixed
+
+--batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+GET Customers HTTP/1.1
+
+
+--batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
+`;
+
 exports[`GET and POST 1`] = `
 "POST host/service/$batch HTTP/1.1
+OData-Version: 4.0
 Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Accept: multipart/mixed
 
 --batch_36522ad7-fc75-4b56-8c71-56071383e77b
 Content-Type: application/http
@@ -67,7 +87,9 @@ Content-Type: application/atom+xml;type=entry
 
 exports[`GET only 1`] = `
 "POST host/service/$batch HTTP/1.1
+OData-Version: 4.0
 Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Accept: multipart/mixed
 
 --batch_36522ad7-fc75-4b56-8c71-56071383e77b
 Content-Type: application/http

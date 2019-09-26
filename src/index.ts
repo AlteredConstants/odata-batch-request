@@ -7,7 +7,7 @@ const format = outdent({ newline })
 export class ODataBatchRequest {
   public constructor(
     private readonly serviceRoot: string,
-    private readonly operations: readonly Operation[],
+    private readonly operations: readonly [Operation, ...Operation[]],
   ) {}
 
   private readonly boundary = `batch_${uuid()}`
@@ -19,7 +19,13 @@ export class ODataBatchRequest {
     `,
   )
 
-  public readonly url = `${this.serviceRoot}/$batch`
+  public readonly url = `${this.serviceRoot.replace(/\/+$/, "")}/$batch`
+  public readonly headers: { readonly [header: string]: string } = {
+    "OData-Version": "4.0",
+    "Content-Type": `multipart/mixed; boundary=${this.boundary}`,
+    Accept: "multipart/mixed",
+  }
+
   public readonly contentType = `Content-Type: multipart/mixed; boundary=${this.boundary}`
 
   public readonly body = format`
@@ -29,7 +35,9 @@ export class ODataBatchRequest {
 
   public readonly value = format`
     POST ${this.url} HTTP/1.1
-    ${this.contentType}
+    ${Object.entries(this.headers)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(newline)}
 
     ${this.body}
   `
@@ -41,7 +49,10 @@ export class ODataBatchRequest {
 
 export class ODataBatchChangeset {
   public constructor(
-    private readonly operations: readonly ODataBatchOperation[],
+    private readonly operations: readonly [
+      ODataBatchOperation,
+      ...ODataBatchOperation[],
+    ],
   ) {}
 
   private readonly boundary = `changeset_${uuid()}`
