@@ -10,10 +10,7 @@ export class ODataBatchRequest {
   public readonly body: string
   public readonly value: string
 
-  public constructor(
-    serviceRoot: string,
-    operations: readonly [Operation, ...Operation[]],
-  ) {
+  public constructor(serviceRoot: string, operations: readonly Operation[]) {
     const boundary = `batch_${uuid()}`
     const formattedOperations = operations.map(
       operation => format`
@@ -52,9 +49,7 @@ export class ODataBatchRequest {
 export class ODataBatchChangeset {
   public readonly value: string
 
-  public constructor(
-    operations: readonly [ODataBatchOperation, ...ODataBatchOperation[]],
-  ) {
+  public constructor(operations: readonly ODataBatchOperation[]) {
     const boundary = `changeset_${uuid()}`
 
     const formattedOperations = operations.map(
