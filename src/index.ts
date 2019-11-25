@@ -1,19 +1,25 @@
-import { outdent } from "outdent"
 import * as uuid from "uuid/v4"
+import {
+  format,
+  getHeaderValue,
+  newline,
+  parseHttpResponse,
+  splitAtBoundary,
+} from "./utilities"
 
-const newline = "\r\n"
-const format = outdent({ newline })
-
-export class ODataBatchRequest {
+export class ODataBatchRequest<
+  T extends ReadonlyArray<
+    | ODataBatchOperation
+    | ODataBatchChangeset<ReadonlyArray<ODataBatchOperation>>
+  >
+> {
+  public readonly operations: T
   public readonly url: string
   public readonly headers: { readonly [header: string]: string }
   public readonly body: string
   public readonly value: string
 
-  public constructor(
-    serviceRoot: string,
-    operations: ReadonlyArray<Operation>,
-  ) {
+  public constructor(serviceRoot: string, operations: T) {
     const boundary = `batch_${uuid()}`
     const formattedOperations = operations.map(
       operation => format`
@@ -21,6 +27,8 @@ export class ODataBatchRequest {
         ${operation.value}
       `,
     )
+
+    this.operations = operations
 
     this.url = `${serviceRoot.replace(/\/+$/, "")}/$batch`
     this.headers = {
@@ -44,24 +52,43 @@ export class ODataBatchRequest {
     `
   }
 
+  public parseResponse(value: string, contentType?: string): BatchResponse<T> {
+    const responses = splitAtBoundary(
+      value,
+      contentType,
+    ).map((operation, index) => this.operations[index].parseResponse(operation))
+
+    const hasError = responses
+      .flatMap(response => response)
+      .some(response => response.statusCode >= 400)
+
+    return {
+      operations: (responses as unknown) as OperationResponseList<T>,
+      hasError,
+    }
+  }
+
   public toString(): string {
     return this.value
   }
 }
 
-export class ODataBatchChangeset {
+export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
+  public readonly operations: T
   public readonly value: string
 
-  public constructor(operations: ReadonlyArray<ODataBatchOperation>) {
+  public constructor(operations: T) {
     const boundary = `changeset_${uuid()}`
 
     const formattedOperations = operations.map(
       (operation, index) => format`
         --${boundary}
-        Content-ID: ${index + 1}
+        Content-ID: ${getContentIdFromIndex(index)}
         ${operation.value}
       `,
     )
+
+    this.operations = operations
 
     this.value = format`
       Content-Type: multipart/mixed; boundary=${boundary}
@@ -69,6 +96,35 @@ export class ODataBatchChangeset {
       ${formattedOperations.join(newline)}
       --${boundary}--
     `
+  }
+
+  public parseResponse(
+    value: string,
+  ): { [K in keyof T]: OperationResponse } | ChangesetFailureResponse<T> {
+    if (getHeaderValue(value, "Content-Type") === "application/http") {
+      const { statusCode, body } = parseHttpResponse(value)
+      return { changeset: this, statusCode, body }
+    }
+
+    const baseResponses = splitAtBoundary(value).map(parseHttpResponse)
+
+    const responses: OperationResponse[] = []
+    for (const [index, operation] of this.operations.entries()) {
+      const baseResponse = baseResponses.find(
+        response => response.contentId === getContentIdFromIndex(index),
+      )
+      if (!baseResponse) {
+        throw new Error(`Missing response of operation at index ${index}.`)
+      }
+
+      responses[index] = {
+        operation,
+        statusCode: baseResponse.statusCode,
+        body: baseResponse.body,
+      }
+    }
+
+    return responses as { -readonly [K in keyof T]: OperationResponse }
   }
 
   public toString(): string {
@@ -119,7 +175,12 @@ export class ODataBatchOperation {
       ${method.toUpperCase()} ${path} HTTP/1.1
       ${formattedHeaders}
       ${body}
-  `
+    `
+  }
+
+  public parseResponse(value: string): OperationResponse {
+    const { statusCode, body } = parseHttpResponse(value)
+    return { operation: this, statusCode, body }
   }
 
   public toString(): string {
@@ -127,8 +188,36 @@ export class ODataBatchOperation {
   }
 }
 
+function getContentIdFromIndex(index: number): string {
+  return `${index + 1}`
+}
+
 const methods = ["get", "post", "put", "patch", "delete"] as const
 type Method = typeof methods[number]
 
-type Operation = ODataBatchOperation | ODataBatchChangeset
 type Headers = { readonly [header: string]: string }
+
+type BatchResponse<T> = {
+  operations: OperationResponseList<T>
+  hasError: boolean
+}
+
+type OperationResponseList<T> = {
+  [K in keyof T]: T[K] extends ODataBatchChangeset<infer U>
+    ? { [K2 in keyof U]: OperationResponse } | ChangesetFailureResponse<U>
+    : T[K] extends ODataBatchOperation
+    ? OperationResponse
+    : never
+}
+
+type OperationResponse = {
+  readonly operation: ODataBatchOperation
+  readonly statusCode: number
+  readonly body?: unknown
+}
+
+type ChangesetFailureResponse<T extends ReadonlyArray<ODataBatchOperation>> = {
+  readonly changeset: ODataBatchChangeset<T>
+  readonly statusCode: number
+  readonly body?: unknown
+}

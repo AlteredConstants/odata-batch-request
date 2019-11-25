@@ -1,0 +1,46 @@
+--b_243234_25424_ef_892u748
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+HTTP/1.1 200 Ok
+Content-Type: application/json
+Content-Length: ###
+
+{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }
+
+--b_243234_25424_ef_892u748
+Content-Type: multipart/mixed;boundary=cs_12u7hdkin252452345eknd_383673037
+
+--cs_12u7hdkin252452345eknd_383673037
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+Content-ID: 1
+
+HTTP/1.1 201 Created
+Content-Type: application/atom+xml;type=entry
+Location: http://host/service.svc/Customer('POIUY')
+Content-Length: ###
+
+<AtomPub representation of a new Customer entity>
+
+--cs_12u7hdkin252452345eknd_383673037
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+Content-ID: 2
+
+HTTP/1.1 204 No Content
+Host: host
+
+
+--cs_12u7hdkin252452345eknd_383673037--
+
+--b_243234_25424_ef_892u748
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+HTTP/1.1 404 Not Found
+Content-Type: application/xml
+Content-Length: ###
+
+<Error message>
+--b_243234_25424_ef_892u748--
