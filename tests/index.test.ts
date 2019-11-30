@@ -1,4 +1,4 @@
-import * as _uuid from "uuid/v4"
+import * as uuid from "uuid/v4"
 import {
   ODataBatchChangeset,
   ODataBatchOperation,
@@ -8,10 +8,10 @@ import * as response from "./response.txt"
 
 jest.mock("uuid/v4")
 
-const uuid: jest.Mock<string, []> = _uuid as any
+const uuidMock: jest.Mock<string, []> = uuid as any
 
-test("GET only", () => {
-  uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
+test("Get full GET batch request", () => {
+  uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
 
   const batch = new ODataBatchRequest("host/service", [
     new ODataBatchOperation("get", "Customers('ALFKI')"),
@@ -42,8 +42,8 @@ test("GET only", () => {
   `)
 })
 
-test("GET and POST", () => {
-  uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
+test("Get full GET and POST batch request", () => {
+  uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
 
   const batch = new ODataBatchRequest("host/service", [
     new ODataBatchOperation("get", "Customers('ALFKI')"),
@@ -78,8 +78,8 @@ test("GET and POST", () => {
   `)
 })
 
-test("Changeset", () => {
-  uuid
+test("Get full changeset batch request", () => {
+  uuidMock
     // Changeset boundary.
     .mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
     // Batch boundary.
@@ -148,31 +148,7 @@ test("Changeset", () => {
   `)
 })
 
-test("Construct correct batch URL", () => {
-  uuid.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
-
-  const batch = new ODataBatchRequest("host/service/", [
-    new ODataBatchOperation("get", "Customers"),
-  ])
-
-  expect(batch.toString()).toMatchInlineSnapshot(`
-    "POST host/service/$batch HTTP/1.1
-    OData-Version: 4.0
-    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Accept: multipart/mixed
-
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
-
-    GET Customers HTTP/1.1
-
-
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `)
-})
-
-test("Parse batch response", () => {
+test("Parse full batch response", () => {
   const customerGet = new ODataBatchOperation("get", "Customers('ALFKI')")
   const customerPost = new ODataBatchOperation("post", "Customers", {
     headers: { "Content-Type": "application/atom+xml;type=entry" },
