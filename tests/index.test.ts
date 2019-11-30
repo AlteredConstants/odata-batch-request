@@ -18,7 +18,28 @@ test("GET only", () => {
     new ODataBatchOperation("get", "Products"),
   ])
 
-  expect(batch.toString()).toMatchSnapshot()
+  expect(batch.toString()).toMatchInlineSnapshot(`
+    "POST host/service/$batch HTTP/1.1
+    OData-Version: 4.0
+    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Accept: multipart/mixed
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    GET Customers('ALFKI') HTTP/1.1
+
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    GET Products HTTP/1.1
+
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
+  `)
 })
 
 test("GET and POST", () => {
@@ -32,7 +53,29 @@ test("GET and POST", () => {
     }),
   ])
 
-  expect(batch.toString()).toMatchSnapshot()
+  expect(batch.toString()).toMatchInlineSnapshot(`
+    "POST host/service/$batch HTTP/1.1
+    OData-Version: 4.0
+    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Accept: multipart/mixed
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    GET Customers('ALFKI') HTTP/1.1
+
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    POST Customers HTTP/1.1
+    Content-Type: application/atom+xml;type=entry
+
+    <AtomPub representation of a new Customer>
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
+  `)
 })
 
 test("Changeset", () => {
@@ -59,7 +102,50 @@ test("Changeset", () => {
     new ODataBatchOperation("get", "Products"),
   ])
 
-  expect(batch.toString()).toMatchSnapshot()
+  expect(batch.toString()).toMatchInlineSnapshot(`
+    "POST host/service/$batch HTTP/1.1
+    OData-Version: 4.0
+    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Accept: multipart/mixed
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    GET Customers('ALFKI') HTTP/1.1
+
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: multipart/mixed; boundary=changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+
+    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+    Content-ID: 1
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    POST Customers HTTP/1.1
+    Content-Type: application/atom+xml;type=entry
+
+    <AtomPub representation of a new Customer>
+    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+    Content-ID: 2
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    PATCH Customers('ALFKI') HTTP/1.1
+    Content-Type: application/json
+
+    <JSON representation of Customer ALFKI>
+    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd--
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    GET Products HTTP/1.1
+
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
+  `)
 })
 
 test("Construct correct batch URL", () => {
@@ -69,7 +155,21 @@ test("Construct correct batch URL", () => {
     new ODataBatchOperation("get", "Customers"),
   ])
 
-  expect(batch.toString()).toMatchSnapshot()
+  expect(batch.toString()).toMatchInlineSnapshot(`
+    "POST host/service/$batch HTTP/1.1
+    OData-Version: 4.0
+    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Accept: multipart/mixed
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    GET Customers HTTP/1.1
+
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
+  `)
 })
 
 test("Parse batch response", () => {
