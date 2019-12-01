@@ -10,7 +10,7 @@ import {
 
 export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
   public readonly operations: T
-  public readonly value: string
+  public readonly getHttp: () => string
 
   public constructor(operations: T) {
     const boundary = `changeset_${uuid()}`
@@ -19,18 +19,21 @@ export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
       (operation, index) => format`
         --${boundary}
         Content-ID: ${getContentIdFromIndex(index)}
-        ${operation.value}
+        ${operation.getHttp(
+          getReferenceContentId(operations, operation, index),
+        )}
       `,
     )
 
     this.operations = operations
 
-    this.value = format`
+    const value = format`
       Content-Type: multipart/mixed; boundary=${boundary}
 
       ${formattedOperations.join(newline)}
       --${boundary}--
     `
+    this.getHttp = () => value
   }
 
   public parseResponse(
@@ -63,7 +66,7 @@ export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
   }
 
   public toString(): string {
-    return this.value
+    return this.getHttp()
   }
 }
 
@@ -73,6 +76,28 @@ export type ChangesetFailureResponse<
   readonly changeset: ODataBatchChangeset<T>
   readonly statusCode: number
   readonly body?: unknown
+}
+
+function getReferenceContentId(
+  operations: ReadonlyArray<ODataBatchOperation>,
+  operation: ODataBatchOperation,
+  index: number,
+): string | undefined {
+  if (!operation.rootReference) {
+    return undefined
+  }
+
+  const rootReferenceIndex = operations.indexOf(operation.rootReference)
+  if (rootReferenceIndex === -1) {
+    throw new Error("Could not find root reference operation.")
+  }
+  if (rootReferenceIndex >= index) {
+    throw new Error(
+      "Referenced operation must come before the operation it's referenced in.",
+    )
+  }
+
+  return getContentIdFromIndex(rootReferenceIndex)
 }
 
 function getContentIdFromIndex(index: number): string {

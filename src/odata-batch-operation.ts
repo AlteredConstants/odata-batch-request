@@ -1,18 +1,19 @@
 import { format, newline, parseHttpResponse } from "./utilities"
 
 export class ODataBatchOperation {
-  public readonly value: string
+  public readonly rootReference?: ODataBatchOperation
+  public readonly getHttp: (referenceContentId?: string) => string
 
   public constructor(
     method: "get" | "delete",
-    path: string,
+    path: string | [ODataBatchOperation, string],
     options?: {
       headers?: Headers
     },
   )
   public constructor(
     method: "post" | "put" | "patch",
-    path: string,
+    path: string | [ODataBatchOperation, string],
     options: {
       headers?: Headers
       body: string
@@ -20,7 +21,7 @@ export class ODataBatchOperation {
   )
   public constructor(
     method: Method,
-    path: string,
+    path: string | [ODataBatchOperation, string],
     { headers = {} as Headers, body = "" } = {},
   ) {
     if (!methods.includes(method)) {
@@ -36,14 +37,28 @@ export class ODataBatchOperation {
       .map(([key, value]) => `${key}: ${value}${newline}`)
       .join("")
 
-    this.value = format`
-      Content-Type: application/http
-      Content-Transfer-Encoding: binary
+    let partialPath: string
+    if (Array.isArray(path)) {
+      this.rootReference = path[0]
+      partialPath = path[1]
+    } else {
+      partialPath = path
+    }
 
-      ${method.toUpperCase()} ${path} HTTP/1.1
-      ${formattedHeaders}
-      ${body}
-    `
+    this.getHttp = (referenceContentId?: string) => {
+      const fullPath = referenceContentId
+        ? `$${referenceContentId}/${partialPath}`
+        : partialPath
+
+      return format`
+        Content-Type: application/http
+        Content-Transfer-Encoding: binary
+
+        ${method.toUpperCase()} ${fullPath} HTTP/1.1
+        ${formattedHeaders}
+        ${body}
+      `
+    }
   }
 
   public parseResponse(value: string): OperationResponse {
@@ -52,7 +67,7 @@ export class ODataBatchOperation {
   }
 
   public toString(): string {
-    return this.value
+    return this.getHttp()
   }
 }
 

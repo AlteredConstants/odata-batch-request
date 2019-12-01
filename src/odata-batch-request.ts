@@ -23,7 +23,7 @@ export class ODataBatchRequest<
     const formattedOperations = operations.map(
       operation => format`
         --${boundary}
-        ${operation.value}
+        ${operation.getHttp()}
       `,
     )
 

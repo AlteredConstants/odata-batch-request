@@ -148,6 +148,58 @@ test("Get full changeset batch request", () => {
   `)
 })
 
+test("Get full changeset with reference batch request", () => {
+  uuidMock
+    // Changeset boundary.
+    .mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
+    // Batch boundary.
+    .mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b")
+
+  const customerPost = new ODataBatchOperation("post", "Customers", {
+    headers: { "Content-Type": "application/atom+xml;type=entry" },
+    body: "<AtomPub representation of a new Customer>",
+  })
+  const orderPost = new ODataBatchOperation("post", [customerPost, "Orders"], {
+    headers: { "Content-Type": "application/atom+xml;type=entry" },
+    body: "<AtomPub representation of a new Order>",
+  })
+
+  const changeset = new ODataBatchChangeset([customerPost, orderPost])
+
+  const batch = new ODataBatchRequest("host/service", [changeset])
+
+  expect(batch.toString()).toMatchInlineSnapshot(`
+    "POST host/service/$batch HTTP/1.1
+    OData-Version: 4.0
+    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Accept: multipart/mixed
+
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
+    Content-Type: multipart/mixed; boundary=changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+
+    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+    Content-ID: 1
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    POST Customers HTTP/1.1
+    Content-Type: application/atom+xml;type=entry
+
+    <AtomPub representation of a new Customer>
+    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+    Content-ID: 2
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    POST $1/Orders HTTP/1.1
+    Content-Type: application/atom+xml;type=entry
+
+    <AtomPub representation of a new Order>
+    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd--
+    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
+  `)
+})
+
 test("Parse full batch response", () => {
   const customerGet = new ODataBatchOperation("get", "Customers('ALFKI')")
   const customerPost = new ODataBatchOperation("post", "Customers", {
