@@ -40,8 +40,8 @@ export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
     value: string,
   ): { [K in keyof T]: OperationResponse } | ChangesetFailureResponse<T> {
     if (getHeaderValue(value, "Content-Type") === "application/http") {
-      const { statusCode, body } = parseHttpResponse(value)
-      return { changeset: this, statusCode, body }
+      const { status, body } = parseHttpResponse(value)
+      return { changeset: this, status, body }
     }
 
     const baseResponses = splitAtBoundary(value).map(parseHttpResponse)
@@ -57,7 +57,7 @@ export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
 
       responses[index] = {
         operation,
-        statusCode: baseResponse.statusCode,
+        status: baseResponse.status,
         body: baseResponse.body,
       }
     }
@@ -74,7 +74,7 @@ export type ChangesetFailureResponse<
   T extends ReadonlyArray<ODataBatchOperation>
 > = {
   readonly changeset: ODataBatchChangeset<T>
-  readonly statusCode: number
+  readonly status: number
   readonly body?: unknown
 }
 

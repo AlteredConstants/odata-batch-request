@@ -62,8 +62,8 @@ export class ODataBatchOperation {
   }
 
   public parseResponse(value: string): OperationResponse {
-    const { statusCode, body } = parseHttpResponse(value)
-    return { operation: this, statusCode, body }
+    const { status, body } = parseHttpResponse(value)
+    return { operation: this, status, body }
   }
 
   public toString(): string {
@@ -73,7 +73,7 @@ export class ODataBatchOperation {
 
 export type OperationResponse = {
   readonly operation: ODataBatchOperation
-  readonly statusCode: number
+  readonly status: number
   readonly body?: unknown
 }
 

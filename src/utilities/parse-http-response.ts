@@ -1,40 +1,22 @@
-import { parse } from "http-z"
-import { newline } from "./miscellaneous"
+import { splitContent, parseResponse } from "./get-header-value"
 
 export function parseHttpResponse(value: string): HttpResponse {
-  const response = parse(fakeStatusLine + newline + value)
+  const root = splitContent(value)
 
-  if (!response.body || !("plain" in response.body)) {
-    throw new Error("Unexpected operation body type.")
+  const contentType = root.headers.get("Content-Type")
+  if (contentType !== "application/http") {
+    throw new Error(`Unexpected operation content type: ${contentType}`)
   }
 
-  if (response.body.contentType !== "application/http") {
-    throw new Error(
-      `Unexpected operation content type: ${JSON.stringify(response.body)}`,
-    )
-  }
+  const contentId = root.headers.get("Content-ID") || undefined
 
-  const contentId = response.headers?.find(
-    header => header.name.toLowerCase() === "content-id",
-  )?.values[0]?.value
+  const { status, body } = parseResponse(root.body)
 
-  const { statusCode, body } = parse(response.body.plain)
-
-  const formattedBody =
-    body &&
-    ("plain" in body
-      ? body.plain.trim()
-      : "json" in body
-      ? body.json
-      : undefined)
-
-  return { statusCode, contentId, body: formattedBody }
+  return { status, contentId, body }
 }
 
 type HttpResponse = {
-  statusCode: number
+  status: number
   contentId?: string
   body?: unknown
 }
-
-const fakeStatusLine = "HTTP/1.1 200 OK But Also Not Real"

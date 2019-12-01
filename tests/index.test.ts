@@ -228,27 +228,25 @@ test("Parse full batch response", () => {
     operations: [
       {
         operation: customerGet,
-        statusCode: 200,
-        body: {
-          value:
-            "JSON representation of the Customer entity with EntityKey ALFKI",
-        },
+        status: 200,
+        body:
+          '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
       },
       [
         {
           operation: customerPost,
-          statusCode: 201,
+          status: 201,
           body: "<AtomPub representation of a new Customer entity>",
         },
         {
           operation: customerPatch,
-          statusCode: 204,
+          status: 204,
           body: "",
         },
       ],
       {
         operation: productsGet,
-        statusCode: 404,
+        status: 404,
         body: "<Error message>",
       },
     ],

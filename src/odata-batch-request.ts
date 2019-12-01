@@ -59,7 +59,7 @@ export class ODataBatchRequest<
 
     const hasError = responses
       .flatMap(response => response)
-      .some(response => response.statusCode >= 400)
+      .some(response => response.status >= 400)
 
     return {
       operations: (responses as unknown) as OperationResponseList<T>,
