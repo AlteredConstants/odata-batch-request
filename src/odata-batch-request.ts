@@ -6,12 +6,7 @@ import {
 import { ODataBatchOperation, OperationResponse } from "./odata-batch-operation"
 import { format, newline, splitAtBoundary } from "./utilities"
 
-export class ODataBatchRequest<
-  T extends ReadonlyArray<
-    | ODataBatchOperation
-    | ODataBatchChangeset<ReadonlyArray<ODataBatchOperation>>
-  >
-> {
+export class ODataBatchRequest<T extends readonly BatchRequestOperation[]> {
   public readonly operations: T
   public readonly url: string
   public readonly headers: { readonly [header: string]: string }
@@ -71,6 +66,10 @@ export class ODataBatchRequest<
     return this.value
   }
 }
+
+type BatchRequestOperation =
+  | ODataBatchOperation
+  | ODataBatchChangeset<readonly ODataBatchOperation[]>
 
 type BatchResponse<T> = {
   operations: OperationResponseList<T>

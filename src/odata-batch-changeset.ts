@@ -8,7 +8,7 @@ import {
   splitAtBoundary,
 } from "./utilities"
 
-export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
+export class ODataBatchChangeset<T extends readonly ODataBatchOperation[]> {
   public readonly operations: T
   public readonly getHttp: () => string
 
@@ -71,7 +71,7 @@ export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
 }
 
 export type ChangesetFailureResponse<
-  T extends ReadonlyArray<ODataBatchOperation>
+  T extends readonly ODataBatchOperation[]
 > = {
   readonly changeset: ODataBatchChangeset<T>
   readonly status: number
@@ -79,7 +79,7 @@ export type ChangesetFailureResponse<
 }
 
 function getReferenceContentId(
-  operations: ReadonlyArray<ODataBatchOperation>,
+  operations: readonly ODataBatchOperation[],
   operation: ODataBatchOperation,
   index: number,
 ): string | undefined {
