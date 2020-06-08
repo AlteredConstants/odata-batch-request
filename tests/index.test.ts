@@ -1,4 +1,4 @@
-import * as uuid from "uuid/v4"
+import { v4 as uuid } from "uuid"
 import {
   ODataBatchChangeset,
   ODataBatchOperation,
@@ -6,7 +6,7 @@ import {
 } from "../src/index"
 import * as response from "./response.txt"
 
-jest.mock("uuid/v4")
+jest.mock("uuid")
 
 const uuidMock: jest.Mock<string, []> = uuid as any
 
