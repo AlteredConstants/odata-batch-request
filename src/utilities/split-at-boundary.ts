@@ -19,8 +19,8 @@ export function splitAtBoundary(
 function getBoundary(contentType: string): string {
   const boundaryPart = contentType
     .split(";")
-    .map(part => part.trim())
-    .find(part => part.startsWith("boundary="))
+    .map((part) => part.trim())
+    .find((part) => part.startsWith("boundary="))
 
   if (!boundaryPart) {
     throw new Error("Boundary could not be found in content type.")

@@ -21,7 +21,7 @@ export class ODataBatchRequest<
   public constructor(serviceRoot: string, operations: T) {
     const boundary = `batch_${uuid()}`
     const formattedOperations = operations.map(
-      operation => format`
+      (operation) => format`
         --${boundary}
         ${operation.getHttp()}
       `,
@@ -58,8 +58,8 @@ export class ODataBatchRequest<
     ).map((operation, index) => this.operations[index].parseResponse(operation))
 
     const hasError = responses
-      .flatMap(response => response)
-      .some(response => response.status >= 400)
+      .flatMap((response) => response)
+      .some((response) => response.status >= 400)
 
     return {
       operations: (responses as unknown) as OperationResponseList<T>,

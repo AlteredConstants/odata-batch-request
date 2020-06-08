@@ -49,7 +49,7 @@ export class ODataBatchChangeset<T extends ReadonlyArray<ODataBatchOperation>> {
     const responses: OperationResponse[] = []
     for (const [index, operation] of this.operations.entries()) {
       const baseResponse = baseResponses.find(
-        response => response.contentId === getContentIdFromIndex(index),
+        (response) => response.contentId === getContentIdFromIndex(index),
       )
       if (!baseResponse) {
         throw new Error(`Missing response of operation at index ${index}.`)
