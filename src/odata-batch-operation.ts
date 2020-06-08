@@ -1,4 +1,4 @@
-import { format, newline, parseHttpResponse } from "./utilities"
+import { format, newline, parseHttpBodyPart } from "./utilities"
 
 export class ODataBatchOperation {
   public readonly rootReference?: ODataBatchOperation
@@ -62,7 +62,7 @@ export class ODataBatchOperation {
   }
 
   public parseResponse(value: string): OperationResponse {
-    const { status, body } = parseHttpResponse(value)
+    const { status, body } = parseHttpBodyPart(value)
     return { operation: this, status, body }
   }
 

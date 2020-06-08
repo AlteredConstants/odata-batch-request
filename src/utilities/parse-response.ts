@@ -1,5 +1,5 @@
-import { newline } from "./miscellaneous"
 import { Headers } from "cross-fetch"
+import { newline } from "./miscellaneous"
 
 export function parseResponse(value: string): HttpResponse {
   const [statusLine, content] = splitAtFirst(value, newline)
@@ -25,16 +25,6 @@ export function splitContent(value: string): HttpContent {
   }
 
   return { headers, body }
-}
-
-export function getHeaderValue(
-  response: string | HttpContent,
-  headerName: string,
-): string | undefined {
-  const { headers } =
-    typeof response === "string" ? splitContent(response) : response
-
-  return headers.get(headerName) || undefined
 }
 
 function splitAtFirst(value: string, separator: string): [string, string] {

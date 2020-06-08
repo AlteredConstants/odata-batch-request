@@ -1,9 +1,9 @@
-import { getHeaderValue } from "./get-header-value"
 import { newline } from "./miscellaneous"
+import { splitContent } from "./parse-response"
 
 export function splitAtBoundary(
   response: string,
-  contentType = getHeaderValue(response, "Content-Type"),
+  contentType = splitContent(response).headers.get("Content-Type") || undefined,
 ): string[] {
   if (contentType === undefined) {
     throw new Error("Could not find content type header.")

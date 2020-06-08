@@ -2,10 +2,10 @@ import { v4 as uuid } from "uuid"
 import { ODataBatchOperation, OperationResponse } from "./odata-batch-operation"
 import {
   format,
-  getHeaderValue,
   newline,
-  parseHttpResponse,
+  parseHttpBodyPart,
   splitAtBoundary,
+  splitContent,
 } from "./utilities"
 
 export class ODataBatchChangeset<T extends readonly ODataBatchOperation[]> {
@@ -39,12 +39,14 @@ export class ODataBatchChangeset<T extends readonly ODataBatchOperation[]> {
   public parseResponse(
     value: string,
   ): { [K in keyof T]: OperationResponse } | ChangesetFailureResponse<T> {
-    if (getHeaderValue(value, "Content-Type") === "application/http") {
-      const { status, body } = parseHttpResponse(value)
+    if (
+      splitContent(value).headers.get("Content-Type") === "application/http"
+    ) {
+      const { status, body } = parseHttpBodyPart(value)
       return { changeset: this, status, body }
     }
 
-    const baseResponses = splitAtBoundary(value).map(parseHttpResponse)
+    const baseResponses = splitAtBoundary(value).map(parseHttpBodyPart)
 
     const responses: OperationResponse[] = []
     for (const [index, operation] of this.operations.entries()) {

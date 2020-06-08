@@ -1,6 +1,6 @@
-import { splitContent, parseResponse } from "./get-header-value"
+import { parseResponse, splitContent } from "./parse-response"
 
-export function parseHttpResponse(value: string): HttpResponse {
+export function parseHttpBodyPart(value: string): HttpResponse {
   const root = splitContent(value)
 
   const contentType = root.headers.get("Content-Type")
