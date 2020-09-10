@@ -168,7 +168,7 @@ test("Get full changeset with reference batch request", () => {
     [customerPost, "Orders/$ref"],
     {
       headers: { "Content-Type": "application/json" },
-      body: (getReference) => `{"$id":"${getReference(orderPost)}"}`,
+      body: (getReference) => `{"$id":"${getReference?.(orderPost)}"}`,
     },
   )
 
