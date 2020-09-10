@@ -19,8 +19,8 @@ export class ODataBatchChangeset<T extends readonly ODataBatchOperation[]> {
       (operation, index) => format`
         --${boundary}
         Content-ID: ${getContentIdFromIndex(index)}
-        ${operation.getHttp(
-          getReferenceContentId(operations, operation, index),
+        ${operation.getHttp((referenceOperation) =>
+          getReference(operations, referenceOperation, index),
         )}
       `,
     )
@@ -80,26 +80,22 @@ export type ChangesetFailureResponse<
   readonly body?: unknown
 }
 
-function getReferenceContentId(
+function getReference(
   operations: readonly ODataBatchOperation[],
-  operation: ODataBatchOperation,
-  index: number,
-): string | undefined {
-  if (!operation.rootReference) {
-    return undefined
+  referenceOperation: ODataBatchOperation,
+  currentIndex: number,
+): string {
+  const referenceIndex = operations.indexOf(referenceOperation)
+  if (referenceIndex === -1) {
+    throw new Error("Could not find reference operation.")
   }
-
-  const rootReferenceIndex = operations.indexOf(operation.rootReference)
-  if (rootReferenceIndex === -1) {
-    throw new Error("Could not find root reference operation.")
-  }
-  if (rootReferenceIndex >= index) {
+  if (referenceIndex >= currentIndex) {
     throw new Error(
       "Referenced operation must come before the operation it's referenced in.",
     )
   }
 
-  return getContentIdFromIndex(rootReferenceIndex)
+  return `$${getContentIdFromIndex(referenceIndex)}`
 }
 
 function getContentIdFromIndex(index: number): string {

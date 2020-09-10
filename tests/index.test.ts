@@ -159,12 +159,24 @@ test("Get full changeset with reference batch request", () => {
     headers: { "Content-Type": "application/atom+xml;type=entry" },
     body: "<AtomPub representation of a new Customer>",
   })
-  const orderPost = new ODataBatchOperation("post", [customerPost, "Orders"], {
+  const orderPost = new ODataBatchOperation("post", "Orders", {
     headers: { "Content-Type": "application/atom+xml;type=entry" },
     body: "<AtomPub representation of a new Order>",
   })
+  const orderReferencePost = new ODataBatchOperation(
+    "post",
+    [customerPost, "Orders/$ref"],
+    {
+      headers: { "Content-Type": "application/json" },
+      body: (getReference) => `{"$id":"${getReference(orderPost)}"}`,
+    },
+  )
 
-  const changeset = new ODataBatchChangeset([customerPost, orderPost])
+  const changeset = new ODataBatchChangeset([
+    customerPost,
+    orderPost,
+    orderReferencePost,
+  ])
 
   const batch = new ODataBatchRequest("host/service", [changeset])
 
@@ -191,10 +203,19 @@ test("Get full changeset with reference batch request", () => {
     Content-Type: application/http
     Content-Transfer-Encoding: binary
 
-    POST $1/Orders HTTP/1.1
+    POST Orders HTTP/1.1
     Content-Type: application/atom+xml;type=entry
 
     <AtomPub representation of a new Order>
+    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+    Content-ID: 3
+    Content-Type: application/http
+    Content-Transfer-Encoding: binary
+
+    POST $1/Orders/$ref HTTP/1.1
+    Content-Type: application/json
+
+    {\\"$id\\":\\"$2\\"}
     --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd--
     --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
   `)

@@ -1,8 +1,8 @@
 import { format, newline, parseHttpBodyPart } from "./utilities"
 
 export class ODataBatchOperation {
-  public readonly rootReference?: ODataBatchOperation
-  public readonly getHttp: (referenceContentId?: string) => string
+  private readonly rootReference?: ODataBatchOperation
+  public readonly getHttp: (getReference?: ReferenceGetter) => string
 
   public constructor(
     method: "get" | "delete",
@@ -16,13 +16,13 @@ export class ODataBatchOperation {
     path: string | [ODataBatchOperation, string],
     options: {
       headers?: Headers
-      body: string
+      body: Body
     },
   )
   public constructor(
     method: Method,
     path: string | [ODataBatchOperation, string],
-    { headers = {} as Headers, body = "" } = {},
+    { headers = {} as Headers, body = "" as Body } = {},
   ) {
     if (!methods.includes(method)) {
       throw new Error(
@@ -45,10 +45,17 @@ export class ODataBatchOperation {
       partialPath = path
     }
 
-    this.getHttp = (referenceContentId?: string) => {
-      const fullPath = referenceContentId
-        ? `$${referenceContentId}/${partialPath}`
-        : partialPath
+    this.getHttp = (getReference) => {
+      let fullPath = partialPath
+      if (this.rootReference) {
+        if (getReference === undefined) {
+          throw new Error(
+            "Referencing a root operation can only be used as part of a batch changeset.",
+          )
+        }
+        const reference = getReference(this.rootReference)
+        fullPath = `${reference}/${partialPath}`
+      }
 
       return format`
         Content-Type: application/http
@@ -56,7 +63,7 @@ export class ODataBatchOperation {
 
         ${method.toUpperCase()} ${fullPath} HTTP/1.1
         ${formattedHeaders}
-        ${body}
+        ${typeof body === "string" ? body : body(getReference)}
       `
     }
   }
@@ -81,3 +88,6 @@ const methods = ["get", "post", "put", "patch", "delete"] as const
 type Method = typeof methods[number]
 
 type Headers = { readonly [header: string]: string }
+
+type ReferenceGetter = (operation: ODataBatchOperation) => string
+type Body = string | ((getReference?: ReferenceGetter) => string)
