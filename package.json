@@ -18,20 +18,20 @@
     "prepack": "npm run clean && npm run test && npm run build"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.3",
-    "@types/uuid": "^8.0.0",
-    "jest": "^26.0.1",
+    "@types/jest": "^26.0.13",
+    "@types/uuid": "^8.3.0",
+    "jest": "^26.4.2",
     "jest-raw-loader": "^1.0.1",
-    "prettier": "^2.0.5",
+    "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.1.0",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.5"
+    "ts-jest": "^26.3.0",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2"
   },
   "dependencies": {
-    "cross-fetch": "^3.0.4",
+    "cross-fetch": "^3.0.5",
     "outdent": "^0.7.1",
-    "tslib": "^1.13.0",
-    "uuid": "^8.1.0"
+    "tslib": "^2.0.1",
+    "uuid": "^8.3.0"
   }
 }
