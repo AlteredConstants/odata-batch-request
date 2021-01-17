@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "lib",
+    "outDir": "lib/esm",
+    "target": "ES2015",
+    "module": "ES2015",
     "declaration": true,
-    "target": "es5",
-    "lib": ["esnext"],
     "sourceMap": true,
     "importHelpers": true,
+    "lib": ["esnext"],
     "downlevelIteration": true,
     "strict": true,
     "noFallthroughCasesInSwitch": true,
@@ -13,7 +14,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
     "moduleResolution": "node"
   },
   "include": ["src/*", "types.d.ts"]

@@ -5,8 +5,9 @@
   "author": "Zeff Svoboda",
   "license": "MIT",
   "repository": "AlteredConstants/odata-batch-request",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/esm/index.d.ts",
   "files": [
     "lib",
     "src"
@@ -15,7 +16,7 @@
     "format": "prettier --write --ignore-path .gitignore .",
     "clean": "rimraf lib coverage",
     "test": "jest",
-    "build": "tsc",
+    "build": "tsc && tsc --project tsconfig.cjs.json",
     "prepack": "npm run clean && npm run test && npm run build"
   },
   "devDependencies": {
