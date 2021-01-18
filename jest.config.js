@@ -4,7 +4,7 @@ module.exports = {
   errorOnDeprecated: true,
   globals: {
     "ts-jest": {
-      tsConfig: "tests/tsconfig.json",
+      tsconfig: "tests/tsconfig.json",
     },
   },
   preset: "ts-jest",
