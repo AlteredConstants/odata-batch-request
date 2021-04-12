@@ -5,6 +5,7 @@ import {
   ODataBatchRequest,
 } from "../src/index"
 import * as response from "./response.txt"
+import * as responseChangesetError from "./response-changeset-error.txt"
 
 jest.mock("uuid")
 
@@ -265,6 +266,54 @@ test("Parse full batch response", () => {
           body: "",
         },
       ],
+      {
+        operation: productsGet,
+        status: 404,
+        body: "<Error message>",
+      },
+    ],
+  })
+})
+
+test("Parse batch response with error in changeset", () => {
+  const customerGet = new ODataBatchOperation("get", "Customers('ALFKI')")
+  const changeset = new ODataBatchChangeset([
+    new ODataBatchOperation("post", "Customers", {
+      headers: { "Content-Type": "application/atom+xml;type=entry" },
+      body: "<AtomPub representation of a new Customer>",
+    }),
+    new ODataBatchOperation("patch", "Customers('ALFKI')", {
+      headers: { "Content-Type": "application/json" },
+      body: "<JSON representation of Customer ALFKI>",
+    }),
+  ] as const)
+  const productsGet = new ODataBatchOperation("get", "Products")
+
+  const batch = new ODataBatchRequest("host/service", [
+    customerGet,
+    changeset,
+    productsGet,
+  ] as const)
+
+  const parsed = batch.parseResponse(
+    responseChangesetError,
+    "multipart/mixed;boundary=b_243234_25424_ef_892u748",
+  )
+
+  expect(parsed).toEqual({
+    hasError: true,
+    operations: [
+      {
+        operation: customerGet,
+        status: 200,
+        body:
+          '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
+      },
+      {
+        changeset,
+        status: 403,
+        body: "<Error message>",
+      },
       {
         operation: productsGet,
         status: 404,
