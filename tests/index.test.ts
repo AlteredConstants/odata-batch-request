@@ -251,8 +251,7 @@ test("Parse full batch response", () => {
       {
         operation: customerGet,
         status: 200,
-        body:
-          '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
+        body: '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
       },
       [
         {
@@ -306,8 +305,7 @@ test("Parse batch response with error in changeset", () => {
       {
         operation: customerGet,
         status: 200,
-        body:
-          '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
+        body: '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
       },
       {
         changeset,

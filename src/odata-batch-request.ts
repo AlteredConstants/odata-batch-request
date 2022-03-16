@@ -47,17 +47,16 @@ export class ODataBatchRequest<T extends readonly BatchRequestOperation[]> {
   }
 
   public parseResponse(value: string, contentType?: string): BatchResponse<T> {
-    const responses = splitAtBoundary(
-      value,
-      contentType,
-    ).map((operation, index) => this.operations[index].parseResponse(operation))
+    const responses = splitAtBoundary(value, contentType).map(
+      (operation, index) => this.operations[index].parseResponse(operation),
+    )
 
     const hasError = responses
       .flatMap((response) => response)
       .some((response) => response.status >= 400)
 
     return {
-      operations: (responses as unknown) as OperationResponseList<T>,
+      operations: responses as unknown as OperationResponseList<T>,
       hasError,
     }
   }

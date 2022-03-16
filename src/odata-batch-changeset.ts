@@ -72,13 +72,12 @@ export class ODataBatchChangeset<T extends readonly ODataBatchOperation[]> {
   }
 }
 
-export type ChangesetFailureResponse<
-  T extends readonly ODataBatchOperation[]
-> = {
-  readonly changeset: ODataBatchChangeset<T>
-  readonly status: number
-  readonly body?: unknown
-}
+export type ChangesetFailureResponse<T extends readonly ODataBatchOperation[]> =
+  {
+    readonly changeset: ODataBatchChangeset<T>
+    readonly status: number
+    readonly body?: unknown
+  }
 
 function getReference(
   operations: readonly ODataBatchOperation[],
