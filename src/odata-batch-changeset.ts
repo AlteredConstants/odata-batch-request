@@ -76,7 +76,7 @@ export type ChangesetFailureResponse<T extends readonly ODataBatchOperation[]> =
   {
     readonly changeset: ODataBatchChangeset<T>
     readonly status: number
-    readonly body?: unknown
+    readonly body?: string
   }
 
 function getReference(

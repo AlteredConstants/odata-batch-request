@@ -18,5 +18,5 @@ export function parseHttpBodyPart(value: string): HttpResponse {
 type HttpResponse = {
   status: number
   contentId?: string
-  body?: unknown
+  body?: string
 }

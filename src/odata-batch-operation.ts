@@ -81,7 +81,7 @@ export class ODataBatchOperation {
 export type OperationResponse = {
   readonly operation: ODataBatchOperation
   readonly status: number
-  readonly body?: unknown
+  readonly body?: string
 }
 
 const methods = ["get", "post", "put", "patch", "delete"] as const
