@@ -4,8 +4,8 @@ import {
   ODataBatchOperation,
   ODataBatchRequest,
 } from "../src/index"
-import * as response from "./response.txt"
-import * as responseChangesetError from "./response-changeset-error.txt"
+import response from "./response.txt"
+import responseChangesetError from "./response-changeset-error.txt"
 
 jest.mock("uuid")
 

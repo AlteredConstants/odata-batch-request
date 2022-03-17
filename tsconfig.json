@@ -8,6 +8,7 @@
     "importHelpers": true,
     "lib": ["esnext"],
     "downlevelIteration": true,
+    "esModuleInterop": true,
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
