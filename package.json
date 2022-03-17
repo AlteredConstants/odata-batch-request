@@ -1,6 +1,6 @@
 {
   "name": "odata-batch-request",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Create OData v4 batch requests",
   "author": "Zeff Svoboda",
   "license": "MIT",
