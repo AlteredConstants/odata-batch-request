@@ -1,21 +1,21 @@
 {
-  "compilerOptions": {
-    "outDir": "lib/esm",
-    "target": "ES2015",
-    "module": "ES2015",
-    "declaration": true,
-    "sourceMap": true,
-    "importHelpers": true,
-    "lib": ["esnext"],
-    "downlevelIteration": true,
-    "esModuleInterop": true,
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node"
-  },
-  "include": ["src/*"]
+	"compilerOptions": {
+		"outDir": "lib/esm",
+		"target": "ES2015",
+		"module": "ES2015",
+		"declaration": true,
+		"sourceMap": true,
+		"importHelpers": true,
+		"lib": ["esnext"],
+		"downlevelIteration": true,
+		"esModuleInterop": true,
+		"strict": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"forceConsistentCasingInFileNames": true,
+		"moduleResolution": "node"
+	},
+	"include": ["src/*"]
 }

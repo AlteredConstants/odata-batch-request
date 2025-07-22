@@ -1,28 +1,28 @@
 /// <reference path="./types.d.ts" />
 
-import { expect, jest, test } from "@jest/globals"
-import { v4 as uuid } from "uuid"
+import { expect, jest, test } from "@jest/globals";
+import { v4 as uuid } from "uuid";
 import {
-  ODataBatchChangeset,
-  ODataBatchOperation,
-  ODataBatchRequest,
-} from "../src/index"
-import response from "./response.txt"
-import responseChangesetError from "./response-changeset-error.txt"
+	ODataBatchChangeset,
+	ODataBatchOperation,
+	ODataBatchRequest,
+} from "../src/index";
+import response from "./response.txt";
+import responseChangesetError from "./response-changeset-error.txt";
 
-jest.mock("uuid")
+jest.mock("uuid");
 
-const uuidMock = jest.mocked<() => string>(uuid)
+const uuidMock = jest.mocked<() => string>(uuid);
 
 test("Get full GET batch request", () => {
-  uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
+	uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b");
 
-  const batch = new ODataBatchRequest("host/service", [
-    new ODataBatchOperation("get", "Customers('ALFKI')"),
-    new ODataBatchOperation("get", "Products"),
-  ])
+	const batch = new ODataBatchRequest("host/service", [
+		new ODataBatchOperation("get", "Customers('ALFKI')"),
+		new ODataBatchOperation("get", "Products"),
+	]);
 
-  expect(batch.toString()).toMatchInlineSnapshot(`
+	expect(batch.toString()).toMatchInlineSnapshot(`
     "POST host/service/$batch HTTP/1.1
     OData-Version: 4.0
     Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
@@ -43,21 +43,21 @@ test("Get full GET batch request", () => {
 
 
     --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `)
-})
+  `);
+});
 
 test("Get full GET and POST batch request", () => {
-  uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
+	uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b");
 
-  const batch = new ODataBatchRequest("host/service", [
-    new ODataBatchOperation("get", "Customers('ALFKI')"),
-    new ODataBatchOperation("post", "Customers", {
-      headers: { "Content-Type": "application/atom+xml;type=entry" },
-      body: "<AtomPub representation of a new Customer>",
-    }),
-  ])
+	const batch = new ODataBatchRequest("host/service", [
+		new ODataBatchOperation("get", "Customers('ALFKI')"),
+		new ODataBatchOperation("post", "Customers", {
+			headers: { "Content-Type": "application/atom+xml;type=entry" },
+			body: "<AtomPub representation of a new Customer>",
+		}),
+	]);
 
-  expect(batch.toString()).toMatchInlineSnapshot(`
+	expect(batch.toString()).toMatchInlineSnapshot(`
     "POST host/service/$batch HTTP/1.1
     OData-Version: 4.0
     Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
@@ -79,34 +79,34 @@ test("Get full GET and POST batch request", () => {
 
     <AtomPub representation of a new Customer>
     --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `)
-})
+  `);
+});
 
 test("Get full changeset batch request", () => {
-  uuidMock
-    // Changeset boundary.
-    .mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
-    // Batch boundary.
-    .mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b")
+	uuidMock
+		// Changeset boundary.
+		.mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
+		// Batch boundary.
+		.mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b");
 
-  const changeset = new ODataBatchChangeset([
-    new ODataBatchOperation("post", "Customers", {
-      headers: { "Content-Type": "application/atom+xml;type=entry" },
-      body: "<AtomPub representation of a new Customer>",
-    }),
-    new ODataBatchOperation("patch", "Customers('ALFKI')", {
-      headers: { "Content-Type": "application/json" },
-      body: "<JSON representation of Customer ALFKI>",
-    }),
-  ])
+	const changeset = new ODataBatchChangeset([
+		new ODataBatchOperation("post", "Customers", {
+			headers: { "Content-Type": "application/atom+xml;type=entry" },
+			body: "<AtomPub representation of a new Customer>",
+		}),
+		new ODataBatchOperation("patch", "Customers('ALFKI')", {
+			headers: { "Content-Type": "application/json" },
+			body: "<JSON representation of Customer ALFKI>",
+		}),
+	]);
 
-  const batch = new ODataBatchRequest("host/service", [
-    new ODataBatchOperation("get", "Customers('ALFKI')"),
-    changeset,
-    new ODataBatchOperation("get", "Products"),
-  ])
+	const batch = new ODataBatchRequest("host/service", [
+		new ODataBatchOperation("get", "Customers('ALFKI')"),
+		changeset,
+		new ODataBatchOperation("get", "Products"),
+	]);
 
-  expect(batch.toString()).toMatchInlineSnapshot(`
+	expect(batch.toString()).toMatchInlineSnapshot(`
     "POST host/service/$batch HTTP/1.1
     OData-Version: 4.0
     Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
@@ -149,42 +149,42 @@ test("Get full changeset batch request", () => {
 
 
     --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `)
-})
+  `);
+});
 
 test("Get full changeset with reference batch request", () => {
-  uuidMock
-    // Changeset boundary.
-    .mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
-    // Batch boundary.
-    .mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b")
+	uuidMock
+		// Changeset boundary.
+		.mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
+		// Batch boundary.
+		.mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b");
 
-  const customerPost = new ODataBatchOperation("post", "Customers", {
-    headers: { "Content-Type": "application/atom+xml;type=entry" },
-    body: "<AtomPub representation of a new Customer>",
-  })
-  const orderPost = new ODataBatchOperation("post", "Orders", {
-    headers: { "Content-Type": "application/atom+xml;type=entry" },
-    body: "<AtomPub representation of a new Order>",
-  })
-  const orderReferencePost = new ODataBatchOperation(
-    "post",
-    [customerPost, "Orders/$ref"],
-    {
-      headers: { "Content-Type": "application/json" },
-      body: (getReference) => `{"$id":"${getReference?.(orderPost)}"}`,
-    },
-  )
+	const customerPost = new ODataBatchOperation("post", "Customers", {
+		headers: { "Content-Type": "application/atom+xml;type=entry" },
+		body: "<AtomPub representation of a new Customer>",
+	});
+	const orderPost = new ODataBatchOperation("post", "Orders", {
+		headers: { "Content-Type": "application/atom+xml;type=entry" },
+		body: "<AtomPub representation of a new Order>",
+	});
+	const orderReferencePost = new ODataBatchOperation(
+		"post",
+		[customerPost, "Orders/$ref"],
+		{
+			headers: { "Content-Type": "application/json" },
+			body: (getReference) => `{"$id":"${getReference?.(orderPost)}"}`,
+		},
+	);
 
-  const changeset = new ODataBatchChangeset([
-    customerPost,
-    orderPost,
-    orderReferencePost,
-  ])
+	const changeset = new ODataBatchChangeset([
+		customerPost,
+		orderPost,
+		orderReferencePost,
+	]);
 
-  const batch = new ODataBatchRequest("host/service", [changeset])
+	const batch = new ODataBatchRequest("host/service", [changeset]);
 
-  expect(batch.toString()).toMatchInlineSnapshot(`
+	expect(batch.toString()).toMatchInlineSnapshot(`
     "POST host/service/$batch HTTP/1.1
     OData-Version: 4.0
     Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
@@ -222,104 +222,88 @@ test("Get full changeset with reference batch request", () => {
     {"$id":"$2"}
     --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd--
     --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `)
-})
+  `);
+});
 
 test("Parse full batch response", () => {
-  const customerGet = new ODataBatchOperation("get", "Customers('ALFKI')")
-  const customerPost = new ODataBatchOperation("post", "Customers", {
-    headers: { "Content-Type": "application/atom+xml;type=entry" },
-    body: "<AtomPub representation of a new Customer>",
-  })
-  const customerPatch = new ODataBatchOperation("patch", "Customers('ALFKI')", {
-    headers: { "Content-Type": "application/json" },
-    body: "<JSON representation of Customer ALFKI>",
-  })
-  const productsGet = new ODataBatchOperation("get", "Products")
+	const customerGet = new ODataBatchOperation("get", "Customers('ALFKI')");
+	const customerPost = new ODataBatchOperation("post", "Customers", {
+		headers: { "Content-Type": "application/atom+xml;type=entry" },
+		body: "<AtomPub representation of a new Customer>",
+	});
+	const customerPatch = new ODataBatchOperation("patch", "Customers('ALFKI')", {
+		headers: { "Content-Type": "application/json" },
+		body: "<JSON representation of Customer ALFKI>",
+	});
+	const productsGet = new ODataBatchOperation("get", "Products");
 
-  const batch = new ODataBatchRequest("host/service", [
-    customerGet,
-    new ODataBatchChangeset([customerPost, customerPatch] as const),
-    productsGet,
-  ] as const)
+	const batch = new ODataBatchRequest("host/service", [
+		customerGet,
+		new ODataBatchChangeset([customerPost, customerPatch] as const),
+		productsGet,
+	] as const);
 
-  const parsed = batch.parseResponse(
-    response,
-    "multipart/mixed;boundary=b_243234_25424_ef_892u748",
-  )
+	const parsed = batch.parseResponse(
+		response,
+		"multipart/mixed;boundary=b_243234_25424_ef_892u748",
+	);
 
-  expect(parsed).toEqual({
-    hasError: true,
-    operations: [
-      {
-        operation: customerGet,
-        status: 200,
-        body: '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
-      },
-      [
-        {
-          operation: customerPost,
-          status: 201,
-          body: "<AtomPub representation of a new Customer entity>",
-        },
-        {
-          operation: customerPatch,
-          status: 204,
-          body: "",
-        },
-      ],
-      {
-        operation: productsGet,
-        status: 404,
-        body: "<Error message>",
-      },
-    ],
-  })
-})
+	expect(parsed).toEqual({
+		hasError: true,
+		operations: [
+			{
+				operation: customerGet,
+				status: 200,
+				body: '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
+			},
+			[
+				{
+					operation: customerPost,
+					status: 201,
+					body: "<AtomPub representation of a new Customer entity>",
+				},
+				{ operation: customerPatch, status: 204, body: "" },
+			],
+			{ operation: productsGet, status: 404, body: "<Error message>" },
+		],
+	});
+});
 
 test("Parse batch response with error in changeset", () => {
-  const customerGet = new ODataBatchOperation("get", "Customers('ALFKI')")
-  const changeset = new ODataBatchChangeset([
-    new ODataBatchOperation("post", "Customers", {
-      headers: { "Content-Type": "application/atom+xml;type=entry" },
-      body: "<AtomPub representation of a new Customer>",
-    }),
-    new ODataBatchOperation("patch", "Customers('ALFKI')", {
-      headers: { "Content-Type": "application/json" },
-      body: "<JSON representation of Customer ALFKI>",
-    }),
-  ] as const)
-  const productsGet = new ODataBatchOperation("get", "Products")
+	const customerGet = new ODataBatchOperation("get", "Customers('ALFKI')");
+	const changeset = new ODataBatchChangeset([
+		new ODataBatchOperation("post", "Customers", {
+			headers: { "Content-Type": "application/atom+xml;type=entry" },
+			body: "<AtomPub representation of a new Customer>",
+		}),
+		new ODataBatchOperation("patch", "Customers('ALFKI')", {
+			headers: { "Content-Type": "application/json" },
+			body: "<JSON representation of Customer ALFKI>",
+		}),
+	] as const);
+	const productsGet = new ODataBatchOperation("get", "Products");
 
-  const batch = new ODataBatchRequest("host/service", [
-    customerGet,
-    changeset,
-    productsGet,
-  ] as const)
+	const batch = new ODataBatchRequest("host/service", [
+		customerGet,
+		changeset,
+		productsGet,
+	] as const);
 
-  const parsed = batch.parseResponse(
-    responseChangesetError,
-    "multipart/mixed;boundary=b_243234_25424_ef_892u748",
-  )
+	const parsed = batch.parseResponse(
+		responseChangesetError,
+		"multipart/mixed;boundary=b_243234_25424_ef_892u748",
+	);
 
-  expect(parsed).toEqual({
-    hasError: true,
-    operations: [
-      {
-        operation: customerGet,
-        status: 200,
-        body: '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
-      },
-      {
-        changeset,
-        status: 403,
-        body: "<Error message>",
-      },
-      {
-        operation: productsGet,
-        status: 404,
-        body: "<Error message>",
-      },
-    ],
-  })
-})
+	expect(parsed).toEqual({
+		hasError: true,
+		operations: [
+			{
+				operation: customerGet,
+				status: 200,
+				body: '{ "value": "JSON representation of the Customer entity with EntityKey ALFKI" }',
+			},
+			{ changeset, status: 403, body: "<Error message>" },
+			{ operation: productsGet, status: 404, body: "<Error message>" },
+		],
+	});
+});
