@@ -4,7 +4,10 @@
 	"description": "Create OData v4 batch requests",
 	"author": "Zeff Svoboda",
 	"license": "MIT",
-	"repository": "AlteredConstants/odata-batch-request",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/AlteredConstants/odata-batch-request.git"
+	},
 	"main": "lib/cjs/index.js",
 	"module": "lib/esm/index.js",
 	"types": "lib/esm/index.d.ts",
