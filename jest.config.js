@@ -1,15 +1,17 @@
+const { createDefaultPreset } = require("ts-jest")
+
+const tsJestTransform = createDefaultPreset({
+  tsconfig: "./tests/tsconfig.json",
+}).transform
+
+/** @type {import("jest").Config} **/
 module.exports = {
   clearMocks: true,
   coverageDirectory: "coverage",
   errorOnDeprecated: true,
-  globals: {
-    "ts-jest": {
-      tsconfig: "tests/tsconfig.json",
-    },
-  },
-  preset: "ts-jest",
   testEnvironment: "node",
   transform: {
-    "\\.txt$": "jest-raw-loader",
+    ...tsJestTransform,
+    "\\.txt$": "./tests/raw-transformer.js",
   },
 }

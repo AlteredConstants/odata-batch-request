@@ -1,3 +1,6 @@
+/// <reference path="./types.d.ts" />
+
+import { expect, jest, test } from "@jest/globals"
 import { v4 as uuid } from "uuid"
 import {
   ODataBatchChangeset,
@@ -9,7 +12,7 @@ import responseChangesetError from "./response-changeset-error.txt"
 
 jest.mock("uuid")
 
-const uuidMock: jest.Mock<string, []> = uuid as any
+const uuidMock = jest.mocked<() => string>(uuid)
 
 test("Get full GET batch request", () => {
   uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b")
@@ -216,7 +219,7 @@ test("Get full changeset with reference batch request", () => {
     POST $1/Orders/$ref HTTP/1.1
     Content-Type: application/json
 
-    {\\"$id\\":\\"$2\\"}
+    {"$id":"$2"}
     --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd--
     --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
   `)

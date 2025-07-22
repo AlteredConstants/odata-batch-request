@@ -17,5 +17,5 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node"
   },
-  "include": ["src/*", "types.d.ts"]
+  "include": ["src/*"]
 }
