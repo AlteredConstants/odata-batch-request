@@ -1,7 +1,6 @@
 /// <reference path="./types.d.ts" />
 
-import { expect, jest, test } from "@jest/globals";
-import { v4 as uuid } from "uuid";
+import { afterEach, expect, jest, test } from "@jest/globals";
 import {
 	ODataBatchChangeset,
 	ODataBatchOperation,
@@ -10,12 +9,14 @@ import {
 import response from "./response.txt";
 import responseChangesetError from "./response-changeset-error.txt";
 
-jest.mock("uuid");
-
-const uuidMock = jest.mocked<() => string>(uuid);
+afterEach(() => {
+	jest.restoreAllMocks();
+});
 
 test("Get full GET batch request", () => {
-	uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b");
+	jest
+		.spyOn(crypto, "randomUUID")
+		.mockReturnValue("526e0039-97fb-44d1-8313-1f019640c3d2");
 
 	const batch = new ODataBatchRequest("host/service", [
 		new ODataBatchOperation("get", "Customers('ALFKI')"),
@@ -23,31 +24,33 @@ test("Get full GET batch request", () => {
 	]);
 
 	expect(batch.toString()).toMatchInlineSnapshot(`
-    "POST host/service/$batch HTTP/1.1
-    OData-Version: 4.0
-    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Accept: multipart/mixed
+		"POST host/service/$batch HTTP/1.1
+		OData-Version: 4.0
+		Content-Type: multipart/mixed; boundary=batch_526e0039-97fb-44d1-8313-1f019640c3d2
+		Accept: multipart/mixed
 
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+		--batch_526e0039-97fb-44d1-8313-1f019640c3d2
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
 
-    GET Customers('ALFKI') HTTP/1.1
-
-
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
-
-    GET Products HTTP/1.1
+		GET Customers('ALFKI') HTTP/1.1
 
 
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `);
+		--batch_526e0039-97fb-44d1-8313-1f019640c3d2
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
+
+		GET Products HTTP/1.1
+
+
+		--batch_526e0039-97fb-44d1-8313-1f019640c3d2--"
+	`);
 });
 
 test("Get full GET and POST batch request", () => {
-	uuidMock.mockReturnValue("36522ad7-fc75-4b56-8c71-56071383e77b");
+	jest
+		.spyOn(crypto, "randomUUID")
+		.mockReturnValue("5d680fd1-3097-416a-a485-b7538f2ee802");
 
 	const batch = new ODataBatchRequest("host/service", [
 		new ODataBatchOperation("get", "Customers('ALFKI')"),
@@ -58,36 +61,37 @@ test("Get full GET and POST batch request", () => {
 	]);
 
 	expect(batch.toString()).toMatchInlineSnapshot(`
-    "POST host/service/$batch HTTP/1.1
-    OData-Version: 4.0
-    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Accept: multipart/mixed
+		"POST host/service/$batch HTTP/1.1
+		OData-Version: 4.0
+		Content-Type: multipart/mixed; boundary=batch_5d680fd1-3097-416a-a485-b7538f2ee802
+		Accept: multipart/mixed
 
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+		--batch_5d680fd1-3097-416a-a485-b7538f2ee802
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
 
-    GET Customers('ALFKI') HTTP/1.1
+		GET Customers('ALFKI') HTTP/1.1
 
 
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+		--batch_5d680fd1-3097-416a-a485-b7538f2ee802
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
 
-    POST Customers HTTP/1.1
-    Content-Type: application/atom+xml;type=entry
+		POST Customers HTTP/1.1
+		Content-Type: application/atom+xml;type=entry
 
-    <AtomPub representation of a new Customer>
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `);
+		<AtomPub representation of a new Customer>
+		--batch_5d680fd1-3097-416a-a485-b7538f2ee802--"
+	`);
 });
 
 test("Get full changeset batch request", () => {
-	uuidMock
+	jest
+		.spyOn(crypto, "randomUUID")
 		// Changeset boundary.
-		.mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
+		.mockReturnValueOnce("abe49c47-d879-4844-8e89-1a37e06e5f5a")
 		// Batch boundary.
-		.mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b");
+		.mockReturnValueOnce("96b943fe-ddf2-4964-a506-b1dbb2343c4e");
 
 	const changeset = new ODataBatchChangeset([
 		new ODataBatchOperation("post", "Customers", {
@@ -107,57 +111,58 @@ test("Get full changeset batch request", () => {
 	]);
 
 	expect(batch.toString()).toMatchInlineSnapshot(`
-    "POST host/service/$batch HTTP/1.1
-    OData-Version: 4.0
-    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Accept: multipart/mixed
+		"POST host/service/$batch HTTP/1.1
+		OData-Version: 4.0
+		Content-Type: multipart/mixed; boundary=batch_96b943fe-ddf2-4964-a506-b1dbb2343c4e
+		Accept: multipart/mixed
 
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+		--batch_96b943fe-ddf2-4964-a506-b1dbb2343c4e
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
 
-    GET Customers('ALFKI') HTTP/1.1
-
-
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: multipart/mixed; boundary=changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
-
-    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
-    Content-ID: 1
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
-
-    POST Customers HTTP/1.1
-    Content-Type: application/atom+xml;type=entry
-
-    <AtomPub representation of a new Customer>
-    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
-    Content-ID: 2
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
-
-    PATCH Customers('ALFKI') HTTP/1.1
-    Content-Type: application/json
-
-    <JSON representation of Customer ALFKI>
-    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd--
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
-
-    GET Products HTTP/1.1
+		GET Customers('ALFKI') HTTP/1.1
 
 
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `);
+		--batch_96b943fe-ddf2-4964-a506-b1dbb2343c4e
+		Content-Type: multipart/mixed; boundary=changeset_abe49c47-d879-4844-8e89-1a37e06e5f5a
+
+		--changeset_abe49c47-d879-4844-8e89-1a37e06e5f5a
+		Content-ID: 1
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
+
+		POST Customers HTTP/1.1
+		Content-Type: application/atom+xml;type=entry
+
+		<AtomPub representation of a new Customer>
+		--changeset_abe49c47-d879-4844-8e89-1a37e06e5f5a
+		Content-ID: 2
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
+
+		PATCH Customers('ALFKI') HTTP/1.1
+		Content-Type: application/json
+
+		<JSON representation of Customer ALFKI>
+		--changeset_abe49c47-d879-4844-8e89-1a37e06e5f5a--
+		--batch_96b943fe-ddf2-4964-a506-b1dbb2343c4e
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
+
+		GET Products HTTP/1.1
+
+
+		--batch_96b943fe-ddf2-4964-a506-b1dbb2343c4e--"
+	`);
 });
 
 test("Get full changeset with reference batch request", () => {
-	uuidMock
+	jest
+		.spyOn(crypto, "randomUUID")
 		// Changeset boundary.
-		.mockReturnValueOnce("77162fcd-b8da-41ac-a9f8-9357efbbd")
+		.mockReturnValueOnce("910e6609-2966-4820-936f-620c3ef65769")
 		// Batch boundary.
-		.mockReturnValueOnce("36522ad7-fc75-4b56-8c71-56071383e77b");
+		.mockReturnValueOnce("5d62dacb-db8a-49d2-af74-83d97a5015a5");
 
 	const customerPost = new ODataBatchOperation("post", "Customers", {
 		headers: { "Content-Type": "application/atom+xml;type=entry" },
@@ -185,44 +190,44 @@ test("Get full changeset with reference batch request", () => {
 	const batch = new ODataBatchRequest("host/service", [changeset]);
 
 	expect(batch.toString()).toMatchInlineSnapshot(`
-    "POST host/service/$batch HTTP/1.1
-    OData-Version: 4.0
-    Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Accept: multipart/mixed
+		"POST host/service/$batch HTTP/1.1
+		OData-Version: 4.0
+		Content-Type: multipart/mixed; boundary=batch_5d62dacb-db8a-49d2-af74-83d97a5015a5
+		Accept: multipart/mixed
 
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b
-    Content-Type: multipart/mixed; boundary=changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
+		--batch_5d62dacb-db8a-49d2-af74-83d97a5015a5
+		Content-Type: multipart/mixed; boundary=changeset_910e6609-2966-4820-936f-620c3ef65769
 
-    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
-    Content-ID: 1
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+		--changeset_910e6609-2966-4820-936f-620c3ef65769
+		Content-ID: 1
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
 
-    POST Customers HTTP/1.1
-    Content-Type: application/atom+xml;type=entry
+		POST Customers HTTP/1.1
+		Content-Type: application/atom+xml;type=entry
 
-    <AtomPub representation of a new Customer>
-    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
-    Content-ID: 2
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+		<AtomPub representation of a new Customer>
+		--changeset_910e6609-2966-4820-936f-620c3ef65769
+		Content-ID: 2
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
 
-    POST Orders HTTP/1.1
-    Content-Type: application/atom+xml;type=entry
+		POST Orders HTTP/1.1
+		Content-Type: application/atom+xml;type=entry
 
-    <AtomPub representation of a new Order>
-    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd
-    Content-ID: 3
-    Content-Type: application/http
-    Content-Transfer-Encoding: binary
+		<AtomPub representation of a new Order>
+		--changeset_910e6609-2966-4820-936f-620c3ef65769
+		Content-ID: 3
+		Content-Type: application/http
+		Content-Transfer-Encoding: binary
 
-    POST $1/Orders/$ref HTTP/1.1
-    Content-Type: application/json
+		POST $1/Orders/$ref HTTP/1.1
+		Content-Type: application/json
 
-    {"$id":"$2"}
-    --changeset_77162fcd-b8da-41ac-a9f8-9357efbbd--
-    --batch_36522ad7-fc75-4b56-8c71-56071383e77b--"
-  `);
+		{"$id":"$2"}
+		--changeset_910e6609-2966-4820-936f-620c3ef65769--
+		--batch_5d62dacb-db8a-49d2-af74-83d97a5015a5--"
+	`);
 });
 
 test("Parse full batch response", () => {

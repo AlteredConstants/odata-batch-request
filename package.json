@@ -34,7 +34,6 @@
 	"dependencies": {
 		"cross-fetch": "^4.1.0",
 		"outdent": "^0.8.0",
-		"tslib": "^2.1.0",
-		"uuid": "^11.1.0"
+		"tslib": "^2.1.0"
 	}
 }

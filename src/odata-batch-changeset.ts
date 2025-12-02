@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid";
 import {
 	ODataBatchOperation,
 	OperationResponse,
@@ -16,7 +15,7 @@ export class ODataBatchChangeset<T extends readonly ODataBatchOperation[]> {
 	public readonly getHttp: () => string;
 
 	public constructor(operations: T) {
-		const boundary = `changeset_${uuid()}`;
+		const boundary = `changeset_${crypto.randomUUID()}`;
 
 		const formattedOperations = operations.map(
 			(operation, index) => format`
